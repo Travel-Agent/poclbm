@@ -845,6 +845,20 @@ class MinerTab(wx.Panel):
 
     #############################
     # Begin backend specific code
+    def configure_subprocess_cgminer(self):
+        """Set up the command line for cgminer
+
+        The hostname must start with http:// for these miners.
+        """
+        cmd = "%s -T -O %s:%s -o %s:%s %s" % (
+            self.external_path,
+            self.txt_username.GetValue(),
+            self.txt_pass.GetValue(),
+            self.host_with_http_prefix,
+            self.txt_port.GetValue(),
+            self.txt_flags.GetValue())
+        return cmd, os.path.dirname(self.external_path)
+
     def configure_subprocess_poclbm(self):
         """Set up the command line for poclbm."""
         folder = get_module_path()
@@ -930,6 +944,8 @@ class MinerTab(wx.Panel):
         listener_cls = MinerListenerThread
         if not self.is_external_miner:
             conf_func = self.configure_subprocess_poclbm
+        elif "cgminer" in self.external_path:
+            conf_func = self.configure_subprocess_cgminer
         elif "rpcminer" in self.external_path:
             conf_func = self.configure_subprocess_rpcminer
         elif "bitcoin-miner" in self.external_path:
